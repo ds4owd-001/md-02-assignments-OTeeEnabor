@@ -1,6 +1,6 @@
 ---
 title: "Data Visualisation"
-author: ""
+author: "Oselu Enabor"
 format:
   html:
     embed-resources: true
@@ -19,9 +19,9 @@ The required packages for this homework exercise have already been added.
 
 ```{r}
 #| label: load-packages
-library(gapminder)
-library(ggplot2)
-library(dplyr)
+library(gapminder) #dataset package
+library(ggplot2) # plot package
+library(dplyr) 
 library(readr)
 library(sf)
 library(rnaturalearth)
@@ -43,13 +43,22 @@ library(rnaturalearth)
 
 6.  Next to the code chunk option `#| eval:` change the value from `false` to `true`.
 
-7.  Render the document and fix any errors.
+Render the document and fix any errors.
 
 ```{r}
 #| eval: false
- 
-gapminder_2007 <- ___ |> 
-  ___(year == 2007) 
+```
+
+```{r}
+#| eval: true
+gapminder_2007 <- gapminder |> 
+  filter(year == 2007)
+
+```
+
+```{r}
+#| eval: true
+head(gapminder_2007)
 ```
 
 ## Task 3: Summarize data for life expectancy by continent
@@ -73,14 +82,19 @@ gapminder_2007 <- ___ |>
 8.  Render the document and fix any errors.
 
 ```{r}
-#| eval: false
-
-gapminder_summary_2007 <- ___ |> 
-  group_by(___) |> 
+#| eval: true
+gapminder_summary_2007 <- gapminder_2007 |> 
+  group_by(continent) |> 
   summarise(
     count = n(),
-    lifeExp = median(___)
+    lifeExp = median(lifeExp)
   )
+
+```
+
+```{r}
+#| eval: true
+head(gapminder_summary_2007)
 ```
 
 ## Task 4: Summarize data for life expectancy by continent and year
@@ -104,11 +118,10 @@ gapminder_summary_2007 <- ___ |>
 8.  Render the document and fix any errors.
 
 ```{r}
-#| eval: false
-
-gapminder_summary_continent_year <- gapminder ___ 
-  group_by(continent, ___) |> 
-  ___(lifeExp = median(lifeExp)) 
+#| eval: true
+gapminder_summary_continent_year <- gapminder |> 
+  group_by(continent, year) |> 
+ summarise(lifeExp = median(lifeExp)) 
 
 ```
 
@@ -145,30 +158,94 @@ gapminder_summary_continent_year <- read_rds(here::here("data/gapminder-summary-
 
 5.  What are the data types of the three variables used for aesthetic mappings?
 
+    -   Continent - a categorical character (fct)
+
+    -   Life expectancy - continuous numerical (dbl)
+
+```{r}
+#| eval: true
+head(gapminder_summary_continent_year)
+```
+
+```{r}
+#| eval: true
+ggplot(gapminder_2007,
+       aes(
+         x = continent,
+         y = lifeExp,
+         fill = continent
+       )) + 
+  geom_boxplot(outlier.shape = NA) +
+  labs(
+    title = "Continent and Life Expectancy",
+    x = "Continent",
+    y = "Life Expectancy (years)"
+  )
+```
+
+```{r}
+gapminder_2007
+```
+
 ## Task 7: Create a timeseries plot
 
 1.  Add a new code chunk below.
 
-2.  Use the `ggplot()` function and the `gapminder_summary_continent_year` object to create a connected scatterplot (also called timeseries plot) using the `geom_line()` and `geom_point()`functions with the following aesthetic mappings:
+2.  Use the `ggplot()` function and the `gapminder_summary_continent_year` object to create a connected scatter plot (also called time series plot) using the `geom_line()` and `geom_point()`functions with the following aesthetic mappings:
 
 -   year to the x-axis;
 -   life expectancy to the y-axis;
 -   continent to color using the `color = continent` argument inside `aes()`
 
-3.  Run the code contained in the code chunk and fix any errors.
+Run the code contained in the code chunk and fix any errors.
 
-## Task 8: Create a barplot
+```{r}
+#| eval: true
+ggplot(gapminder_summary_continent_year,
+       aes (
+         x= year,
+         y = lifeExp,
+         color = continent
+       ))+ 
+  geom_line() +
+  geom_point() + 
+  labs (
+    title = "Year and Life Expectancy by Continent",
+    x = "Year",
+    y = "Life Expectancy (years)"
+    
+  )
+```
+
+## Task 8: Create a bar-plot
 
 ### with `geom_col()`
 
 1.  Add a new code chunk below.
 
-2.  Use the `ggplot()` function and the `gapminder_summary_2007` object to create a barplot using the `geom_col()` function with the following aesthetic mappings:
+2.  Use the `ggplot()` function and the `gapminder_summary_2007` object to create a bar-plot using the `geom_col()` function with the following aesthetic mappings:
 
 -   continent to the x-axis;
 -   count to the y-axis;
 
-3.  Run the code contained in the code chunk and fix any errors.
+Run the code contained in the code chunk and fix any errors.
+
+```{r}
+#| eval: true
+ggplot(gapminder_summary_2007,
+       aes(
+         x = continent,
+         y = count,
+         fill = continent
+       )) +
+  geom_col() +
+  labs (
+    title = "Number of Observations per Continent",
+    x = "Continent",
+    y = "Number of Observations"
+    
+  )
+```
 
 ### with `geom_bar()`
 
@@ -180,7 +257,25 @@ gapminder_summary_continent_year <- read_rds(here::here("data/gapminder-summary-
 
 3.  Run the code contained in the code chunk and fix any errors.
 
+    ```{r}
+    #| eval: true
+    ggplot(gapminder_2007,
+           aes(
+             x = continent,
+             fill = continent
+           )) +
+      geom_bar() +
+      labs (
+        title = "Number of Observations per Continent",
+        x = "Continent",
+        y = "Number of Observations"
+        
+      )
+    ```
+
 4.  The plot is identical to the plot created with `geom_col()`. Why? What does the `geom_bar()` function do? Write your text here:
+
+    The geom_bar() function performs the counting of each categorical object automatically - does not need a y parameter unlike the geom_col() function.
 
 ## Task 9: Create a histogram
 
@@ -204,9 +299,46 @@ gapminder_summary_continent_year <- read_rds(here::here("data/gapminder-summary-
 
 7.  What happens by adding the 'breaks' argument? Play around with the numbers inside of `seq()` to see what changes. Describe here what you observe:
 
+***The bin boundaries change depending on the sequence of values given to the breaks argument.***
+
+```{r}
+#| eval: true
+ggplot(gapminder_2007,
+       aes(
+         x=lifeExp,
+         fill = continent
+       )) +
+  geom_histogram(col = "grey30",
+                 breaks = seq(40, 85, 2.5))+
+  labs (
+    title = "Number of Observations per Continent",
+    x = "Life expectancy (years)",
+    y = "Number of Observations"
+    
+  )
+```
+
 ## Task 10: Scatterplot and faceting
 
 1.  Add a new code chunk below.
+
+    ```{r}
+    #| eval: true
+    ggplot(gapminder_2007,
+           aes(
+             x = gdpPercap,
+             y = lifeExp,
+             size = pop,
+             color = continent
+           ))+ 
+      geom_point()+
+      labs (
+        title = "Life Expectancy and GDP per Capita",
+        x = "GDP per Capita",
+        y = "Life Expectancy (years)"
+        
+      )
+    ```
 
 2.  Use the `ggplot()` function and assign `gapminder_2007` and create a scatterplot using the `geom_point()`function with the following aesthetic mappings:
 
@@ -219,7 +351,26 @@ gapminder_summary_continent_year <- read_rds(here::here("data/gapminder-summary-
 
 5.  Use the variable continent to facet the plot by adding: `facet_wrap(~continent)`.
 
-6.  Run the code contained in the code chunk and fix any errors.
+Run the code contained in the code chunk and fix any errors.
+
+```{r}
+#| eval: true
+ggplot(gapminder_2007,
+       aes(
+         x = gdpPercap,
+         y = lifeExp,
+         size = pop,
+         color = continent
+       ))+ 
+  geom_point()+
+  facet_wrap(~continent) +
+  labs (
+    title = "Life Epectanct and GDP per Capita per Continent",
+    x = "GDP per Capita",
+    y = "Life Expectancy (years)"
+    
+  )
+```
 
 ## Task 11: Create a lineplot and use facets
 
@@ -236,7 +387,7 @@ gapminder_summary_continent_year <- read_rds(here::here("data/gapminder-summary-
 6.  Render the document and fix any errors.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 ggplot(data = gapminder,
        mapping = aes(x = year, 
@@ -245,8 +396,14 @@ ggplot(data = gapminder,
                      color = country)) +
   geom_line(lwd = 1, show.legend = FALSE) + 
   facet_wrap(~continent) +
-  # scale_color_manual(values = country_colors) +
-  theme_minimal() 
+  scale_color_manual(values = country_colors) +
+  theme_minimal() +
+  labs (
+    title = "Life Expectancy by Year per Continent",
+    x = "Year",
+    y = "Life Expectancy"
+    
+  )
 
 ```
 
@@ -263,7 +420,7 @@ The code chunk below contains code for a world map that shows countries by incom
 3.  Render the document and fix any errors.
 
 ```{r}
-#| eval: false
+#| eval: true
 
 world <- ne_countries(scale = "small", returnclass = "sf")
 
